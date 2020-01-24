@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'RssFeed' ">
+    <StartAction>Project</StartAction>
+    <LaunchUrl>swagger</LaunchUrl>
+    <ApplicationURL>http://localhost:5002</ApplicationURL>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Parser.Service\Parser.csproj" />
+  </ItemGroup>
+</Project>
