@@ -28,9 +28,9 @@ namespace RssFeed.Api.Controllers
             {
                 return Ok(_rssFeedService.GetRssFeed(url));
             }
-            catch(InvalidOperationException e)
+            catch(Exception e)
             {
-                return BadRequest("Invalid element during parsing");
+                return BadRequest("Failed to parse feed");
             }
         }
     }

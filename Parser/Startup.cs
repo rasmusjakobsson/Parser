@@ -31,6 +31,7 @@ namespace Parser.Api
 
             services.AddScoped<IRssFeedService, RssFeedService>();
             services.AddScoped<IRssFeedRepository, RssFeedRepository>();
+            services.AddScoped<IShowRepository, ShowRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

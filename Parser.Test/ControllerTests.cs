@@ -9,7 +9,7 @@ namespace Parser.Test
 {
     public class ControllerTests
     {
-        private Mock<IRssFeedService> _rssFeedService;
+        private readonly Mock<IRssFeedService> _rssFeedService;
 
         public ControllerTests()
         {
@@ -21,7 +21,7 @@ namespace Parser.Test
         {
             _rssFeedService.Setup(x => x.GetRssFeed("testUrl")).Returns(
                 new List<Models.ParsedEpisodeInfo> {
-                    new Models.ParsedEpisodeInfo { CheckSum = 123, Title = "TestEpisode", Url = "http://test.se" }
+                    new Models.ParsedEpisodeInfo { CheckSum = "testCheckSum", Title = "TestEpisode", Url = "http://test.se" }
                 });
 
             var apiController = new RssFeedController(_rssFeedService.Object);
