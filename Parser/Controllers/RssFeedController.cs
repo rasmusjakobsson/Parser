@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Parser.Api.Models;
 using Parser.Contracts;
 using Parser.Models;
 
-namespace RssFeed.Api.Controllers
+namespace Parser.Api.Controllers
 {
     [ApiController]
     [Route("api")]
@@ -17,7 +19,7 @@ namespace RssFeed.Api.Controllers
             _rssFeedService = rssFeedService;
         }
         [HttpGet]
-        public ActionResult<List<ParsedEpisodeInfo>> Get(string url)
+        public async Task<ActionResult<List<ParsedEpisodeInfo>>> Get(string url)
         {
             if (string.IsNullOrEmpty(url))
             {
@@ -26,11 +28,11 @@ namespace RssFeed.Api.Controllers
 
             try
             {
-                return Ok(_rssFeedService.GetRssFeed(url));
+                return Ok(await _rssFeedService.ParseRssFeedAsync(url));
             }
             catch(Exception e)
             {
-                return BadRequest("Failed to parse feed");
+                return BadRequest(new BadRequestResponse("Failed to parse RSS feed") );
             }
         }
     }

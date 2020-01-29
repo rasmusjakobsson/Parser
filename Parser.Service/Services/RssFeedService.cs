@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel.Syndication;
-using System.Xml.Linq;
+using System.Threading.Tasks;
 using Parser.Contracts;
 using Parser.Models;
 
@@ -11,44 +10,38 @@ namespace Parser.Services
     public class RssFeedService: IRssFeedService
     {
         private readonly IRssFeedRepository _rssFeedRepository;
-        private readonly IShowRepository _showRepository;
+        private readonly IAudioFileRepository _fileRepository;
 
-        public RssFeedService(IRssFeedRepository rssFeedRepository, IShowRepository showRepository)
+        public RssFeedService(IRssFeedRepository rssFeedRepository, IAudioFileRepository fileRepository)
         {
             _rssFeedRepository = rssFeedRepository;
-            _showRepository = showRepository;
+            _fileRepository = fileRepository;
         }   
 
-        public List<ParsedEpisodeInfo> GetRssFeed(string url)
+        public async Task<List<ParsedEpisodeInfo>> ParseRssFeedAsync(string url)
         {
             var feed = _rssFeedRepository.CallRssFeed(url);
-            var showInfo = _showRepository.GetShowInfo(GetShowId(feed));
-
-            return feed.Items.Select(item => MapRssFeedResponse(item, showInfo.episodes.FirstOrDefault(epi => epi.id == item.Id)?.checkSum)).ToList();
-        }
-
-        private static ParsedEpisodeInfo MapRssFeedResponse(SyndicationItem item, string checkSum)
-        {
-            try
+            var parsedEpisodes = new List<ParsedEpisodeInfo>();
+           
+            //TODO: send parallel requests in batches
+            foreach (var item in feed.Items)
             {
-                return new ParsedEpisodeInfo
-                {
-                    CheckSum = checkSum,
-                    Title = item.Title.Text,
-                    Url = item.Links.FirstOrDefault(link => link.RelationshipType == "alternate")?.Uri.AbsoluteUri
-                };
-
-            }catch(Exception e)
-            {
-                throw new InvalidOperationException();
+                parsedEpisodes.Add(await MapRssFeedResponseAsync(item));
             }
+
+            return parsedEpisodes;
+
         }
 
-        private static string GetShowId(SyndicationFeed feed)
+        private async Task<ParsedEpisodeInfo> MapRssFeedResponseAsync(SyndicationItem item)
         {
-            var showIdElement = feed.ElementExtensions.Where((x => x.OuterName == "showId")).FirstOrDefault()
-                ?.GetObject<XElement>();
-            return showIdElement?.Value;
+            return new ParsedEpisodeInfo
+            {
+                CheckSum = await _fileRepository.CalculateFileCheckSumAsync(item.Links.FirstOrDefault(link =>
+                    link.MediaType == "audio/mpeg")?.Uri.AbsoluteUri),
+                Title = item.Title.Text,
+                Url = item.Links.FirstOrDefault(link => link.RelationshipType == "alternate")?.Uri.AbsoluteUri
+            };
         }
     }
 }

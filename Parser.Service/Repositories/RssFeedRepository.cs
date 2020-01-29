@@ -6,16 +6,10 @@ namespace Parser.Repositories
 {
     public class RssFeedRepository: IRssFeedRepository
     {
-        public RssFeedRepository()
-        {
-        }
-
         public SyndicationFeed CallRssFeed(string url)
         {
-            using(var reader = XmlReader.Create(url))
-            {
-                return SyndicationFeed.Load(reader);
-            }
+            using var reader = XmlReader.Create(url);
+            return SyndicationFeed.Load(reader);
         }
     }
 }

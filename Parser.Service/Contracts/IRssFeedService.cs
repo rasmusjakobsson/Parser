@@ -1,10 +1,11 @@
 ﻿using Parser.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Parser.Contracts
 {
     public interface IRssFeedService
     {
-        List<ParsedEpisodeInfo> GetRssFeed(string url);
+        Task<List<ParsedEpisodeInfo>> ParseRssFeedAsync(string url);
     }
 }
